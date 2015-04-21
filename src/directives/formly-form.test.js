@@ -1,8 +1,9 @@
 import {expect} from 'chai';
+import _ from 'lodash';
 
 describe('formly-form', () => {
   const input = '<input ng-model="model[options.key]" />';
-  let $compile, scope;
+  let $compile, scope, el;
 
   beforeEach(window.module('formly'));
   beforeEach(inject((_$compile_, $rootScope) => {
@@ -238,10 +239,95 @@ describe('formly-form', () => {
     });
   });
 
+  describe.only(`fast`, () => {
+    let start, end;
+    beforeEach(inject((formlyConfig) => {
+      start = now();
+      formlyConfig.setType({
+        name: 'input',
+        template: input
+      });
+      scope.fields = getALotOfFields();
+      scope.model = {};
+    }));
+
+    it(`should be fast`, () => {
+      compileAndDigest(`
+        <formly-form model="model" fields="fields"></formly-form>
+      `);
+    });
+
+    it(`should be faster`, () => {
+      const formName = 'formly_my_form';
+      const formId = formName;
+      compileAndDigest(`
+        <ng-form class="formly"
+                 name="${formName}"
+                 role="form">
+          ${scope.fields.map(getFieldTemplate.bind(this, formId))}
+        </ng-form>
+      `);
+      console.log(el[0].outerHTML);
+
+      function getFieldTemplate(formId, field, index) {
+        /* jshint -W033 */
+        return `
+          <div formly-field
+               class="formly-field formly-field-${field.type}"
+               options="fields[${index}]"
+               model="model"
+               fields="fields"
+               form="${formId}"
+               form-id="${formId}"
+               form-state="options.formState"
+               index="${index}">
+          </div>
+        `;
+      }
+    });
+
+    afterEach(function() {
+      end = now();
+      console.log(`${this.currentTest.title} time: ${end - start}`);
+    });
+  });
+
   function compileAndDigest(template) {
-    const el = $compile(template)(scope);
+    el = $compile(template)(scope);
     scope.$digest();
     return el;
   }
 
+  function now() {
+    return window.performance.now();
+  }
+
 });
+
+
+function getALotOfFields() {
+  return _.map(new Array(500), getRandomField);
+
+  function getRandomField() {
+    const key = _.random(3000) + 'Key';
+    return {
+      type: 'input',
+      key,
+      templateOptions: {
+        placeholder: `Don't type "foo"`,
+        required: true,
+        onClick: `model[options.key] = "foo"`,
+        onBlur: 'foo',
+        onKeyup: 'foo',
+        onKeydown: 'foo',
+        maxlength: 32,
+        minlength: 0,
+        type: 'number',
+        pattern: 'abcdefg'
+      },
+      expressionProperties: {
+        'templateOptions.disabled': `$viewValue === "foo"`
+      }
+    };
+  }
+}

@@ -10,6 +10,8 @@ export default formlyField;
 // @ngInject
 function formlyField($http, $q, $compile, $templateCache, formlyConfig, formlyValidationMessages, formlyApiCheck,
                      formlyUtil, formlyUsability, formlyWarn) {
+  const allTimes = {};
+  let iteration = 0;
   return {
     restrict: 'AE',
     transclude: true,
@@ -176,6 +178,16 @@ function formlyField($http, $q, $compile, $templateCache, formlyConfig, formlyVa
       }
     },
     link: function fieldLink(scope, el) {
+      if (!allTimes[scope.formId + iteration]) {
+        console.log('creating', scope.formId + iteration);
+      }
+      const times = allTimes[scope.formId + iteration] = allTimes[scope.formId + iteration] || {
+          fieldTimes: [],
+          start: now()
+        };
+      const time = {
+        start: now()
+      };
       var type = scope.options.type && formlyConfig.getType(scope.options.type);
       var args = arguments;
       var thusly = this;
@@ -184,6 +196,17 @@ function formlyField($http, $q, $compile, $templateCache, formlyConfig, formlyVa
         .then(transcludeInWrappers(scope.options))
         .then(runManipulators(formlyConfig.templateManipulators.postWrapper))
         .then(setElementTemplate)
+        .then(() => {
+          time.end = now();
+          time.time = time.end - time.start;
+          console.log(scope.index, 'took', time.time);
+          times.fieldTimes.push(time);
+          if (times.fieldTimes.length === scope.fields.length) {
+            times.end = now();
+            console.log('all time', times.end - times.start);
+            iteration++;
+          }
+        })
         .catch(error => {
           formlyWarn(
             'there-was-a-problem-setting-the-template-for-this-field',
@@ -363,4 +386,8 @@ function arrayify(obj) {
     obj = [];
   }
   return obj;
+}
+
+function now() {
+  return window.performance.now();
 }

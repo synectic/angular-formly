@@ -14,24 +14,31 @@
   <!--<form name="vm.realForm">-->
     <!--<formly-form model="vm.user" fields="vm.realFields" form="vm.realForm"></formly-form>-->
   <!--</form>-->
-  <form name="vm.form">
-    <formly-form model="vm.user" fields="vm.fields" form="vm.form" options="vm.options"></formly-form>
-  </form>
-  <button class="btn btn-default" ng-click="vm.options.resetModel()">Reset Model</button>
-  <button class="btn btn-default" ng-click="vm.options.updateInitialValue()">Update Initial Value</button>
+  <div>Here's the start of trying to figure out how to optimize initial compile time for angular-formly</div>
+  <div>
+    <label><input type="checkbox" ng-model="toggle"/>Toggle ng-if</label>
+  </div>
+  <div ng-if="toggle">
+    <form name="vm.form">
+      <formly-form model="vm.user" fields="vm.fields" form="vm.form" options="vm.options"></formly-form>
+    </form>
+    <button class="btn btn-default" ng-click="vm.options.resetModel()">Reset Model</button>
+    <button class="btn btn-default" ng-click="vm.options.updateInitialValue()">Update Initial Value</button>
+  </div>
 
-  <h1>User</h1>
-  <pre>{{vm.user | json}}</pre>
-  <h1>Form</h1>
-  <pre ng-if="vm.realForm">{{vm.realForm | json}}</pre>
-  <pre ng-if="vm.form">{{vm.form | json}}</pre>
+  <!--<h1>User</h1>-->
+  <!--<pre>{{vm.user | json}}</pre>-->
+  <!--<h1>Form</h1>-->
+  <!--<pre ng-if="vm.realForm">{{vm.realForm | json}}</pre>-->
+  <!--<pre ng-if="vm.form">{{vm.form | json}}</pre>-->
 </div>
 
-<script src="../node_modules/api-check/dist/apiCheck.js"></script>
+<script src="../node_modules/api-check/dist/api-check.js"></script>
 <script src="angular/angular.js"></script>
 <script src="dist/formly.js"></script>
 <!--<script src="formly-templates/angular-formly-templates-vanilla.js"></script>-->
 <script src="formly-templates/angular-formly-templates-bootstrap.js"></script>
 <script src="components/app.js"></script>
+<script src="ng-stats.js"></script>
 </body>
 </html>
