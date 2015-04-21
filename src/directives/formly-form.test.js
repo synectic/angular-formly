@@ -251,39 +251,43 @@ describe('formly-form', () => {
       scope.model = {};
     }));
 
-    it(`should be fast`, () => {
-      compileAndDigest(`
-        <formly-form model="model" fields="fields"></formly-form>
-      `);
+    describe(`regular formly-form`, () => {
+      it(`should be fast`, () => {
+        compileAndDigest(`
+          <formly-form model="model" fields="fields"></formly-form>
+        `);
+      });
     });
 
-    it(`should be faster`, () => {
-      const formName = 'formly_my_form';
-      const formId = formName;
-      compileAndDigest(`
-        <ng-form class="formly"
-                 name="${formName}"
-                 role="form">
-          ${scope.fields.map(getFieldTemplate.bind(this, formId))}
-        </ng-form>
-      `);
-      console.log(el[0].outerHTML);
+    describe(`skipping the formly-form`, () => {
+      it(`should be faster`, () => {
+        const formName = 'formly_my_form';
+        const formId = formName;
+        compileAndDigest(`
+          <ng-form class="formly"
+                   name="${formName}"
+                   role="form">
+            ${scope.fields.map(getFieldTemplate.bind(this, formId))}
+          </ng-form>
+        `);
+        console.log(el[0].outerHTML);
 
-      function getFieldTemplate(formId, field, index) {
-        /* jshint -W033 */
-        return `
-          <div formly-field
-               class="formly-field formly-field-${field.type}"
-               options="fields[${index}]"
-               model="model"
-               fields="fields"
-               form="${formId}"
-               form-id="${formId}"
-               form-state="options.formState"
-               index="${index}">
-          </div>
-        `;
-      }
+        function getFieldTemplate(formId, field, index) {
+          /* jshint -W033 */
+          return `
+            <div formly-field
+                 class="formly-field formly-field-${field.type}"
+                 options="fields[${index}]"
+                 model="model"
+                 fields="fields"
+                 form="${formId}"
+                 form-id="${formId}"
+                 form-state="options.formState"
+                 index="${index}">
+            </div>
+          `;
+        }
+      });
     });
 
     afterEach(function() {
