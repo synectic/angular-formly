@@ -34,22 +34,27 @@ function formlyForm(formlyUsability, $parse, formlyConfig) {
     if (attrs.hasOwnProperty('isFieldGroup') && el.parent().parent().hasClass('formly')) {
       parentFormAttributes = copyAttributes(el.parent().parent()[0].attributes);
     }
+    var globalUseOneTimeBindings = formlyConfig.extras.field ?
+      formlyConfig.extras.field.useOneTimeBindings : null;
+    var localUseOneTimeBindings = attrs.useOneTimeBindings ?
+        $parse(attrs.useOneTimeBindings)() : null;
     return `
         <${rootEl} class="formly"
                  name="${getFormName()}"
                  role="form" ${parentFormAttributes}>
           <${fieldRootEl} formly-field
-               ng-repeat="field in fields ${getTrackBy()}"
-               ${getHideDirective()}="!field.hide"
+               ng-repeat="field in ${getFieldOneTimeBinding('ng-repeat')}fields ${getTrackBy()}"
+               ${getHideDirective()}="${getFieldOneTimeBinding(getHideDirective())}!field.hide"
+               ${getFieldAttributes()}
                class="formly-field"
-               options="field"
-               model="field.model || model"
-               fields="fields"
-               form="theFormlyForm"
-               form-id="${getFormName()}"
-               form-state="options.formState"
-               form-options="options"
-               index="$index">
+               options="${getFieldOneTimeBinding('options')}field"
+               model="${getFieldOneTimeBinding('model')}(field.model || model)"
+               fields="${getFieldOneTimeBinding('fields')}fields"
+               form="${getFieldOneTimeBinding('form')}theFormlyForm"
+               form-id="${getFieldOneTimeBinding('form-id')}${getFormName()}"
+               form-state="${getFieldOneTimeBinding('form-state')}options.formState"
+               form-options="${getFieldOneTimeBinding('form-options')}options"
+               index="${getFieldOneTimeBinding('index')}$index">
           </${fieldRootEl}>
           <div ng-transclude></div>
         </${rootEl}>
@@ -97,6 +102,30 @@ function formlyForm(formlyUsability, $parse, formlyConfig) {
         }
       });
       return arrayAttrs.join(' ');
+    }
+
+    function getFieldAttributes() {
+      if (attrs.fieldAttributes) {
+        return attrs.fieldAttributes;
+      }
+      if (formlyConfig.extras.field &&
+          formlyConfig.extras.field.attributes) {
+        return formlyConfig.extras.field.attributes;
+      }
+      return '';
+    }
+
+    function getFieldOneTimeBinding(attributeName) {
+      var isOneTimeBinding = false;
+      if (localUseOneTimeBindings &&
+          localUseOneTimeBindings[attributeName] !== undefined) {
+        isOneTimeBinding = localUseOneTimeBindings[attributeName];
+      }
+      else if (globalUseOneTimeBindings &&
+               globalUseOneTimeBindings[attributeName] !== undefined) {
+        isOneTimeBinding = globalUseOneTimeBindings[attributeName];
+      }
+      return isOneTimeBinding ? '::' : '';
     }
   }
 

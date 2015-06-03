@@ -1671,7 +1671,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (attrs.hasOwnProperty("isFieldGroup") && el.parent().parent().hasClass("formly")) {
 	      parentFormAttributes = copyAttributes(el.parent().parent()[0].attributes);
 	    }
-	    return "\n        <" + rootEl + " class=\"formly\"\n                 name=\"" + getFormName() + "\"\n                 role=\"form\" " + parentFormAttributes + ">\n          <" + fieldRootEl + " formly-field\n               ng-repeat=\"field in fields " + getTrackBy() + "\"\n               " + getHideDirective() + "=\"!field.hide\"\n               class=\"formly-field\"\n               options=\"field\"\n               model=\"field.model || model\"\n               fields=\"fields\"\n               form=\"theFormlyForm\"\n               form-id=\"" + getFormName() + "\"\n               form-state=\"options.formState\"\n               form-options=\"options\"\n               index=\"$index\">\n          </" + fieldRootEl + ">\n          <div ng-transclude></div>\n        </" + rootEl + ">\n      ";
+	    var globalUseOneTimeBindings = formlyConfig.extras.field ? formlyConfig.extras.field.useOneTimeBindings : null;
+	    var localUseOneTimeBindings = attrs.useOneTimeBindings ? $parse(attrs.useOneTimeBindings)() : null;
+	    return "\n        <" + rootEl + " class=\"formly\"\n                 name=\"" + getFormName() + "\"\n                 role=\"form\" " + parentFormAttributes + ">\n          <" + fieldRootEl + " formly-field\n               ng-repeat=\"field in " + getFieldOneTimeBinding("ng-repeat") + "fields " + getTrackBy() + "\"\n               " + getHideDirective() + "=\"" + getFieldOneTimeBinding(getHideDirective()) + "!field.hide\"\n               " + getFieldAttributes() + "\n               class=\"formly-field\"\n               options=\"" + getFieldOneTimeBinding("options") + "field\"\n               model=\"" + getFieldOneTimeBinding("model") + "(field.model || model)\"\n               fields=\"" + getFieldOneTimeBinding("fields") + "fields\"\n               form=\"" + getFieldOneTimeBinding("form") + "theFormlyForm\"\n               form-id=\"" + getFieldOneTimeBinding("form-id") + "" + getFormName() + "\"\n               form-state=\"" + getFieldOneTimeBinding("form-state") + "options.formState\"\n               form-options=\"" + getFieldOneTimeBinding("form-options") + "options\"\n               index=\"" + getFieldOneTimeBinding("index") + "$index\">\n          </" + fieldRootEl + ">\n          <div ng-transclude></div>\n        </" + rootEl + ">\n      ";
 
 	    function getRootEl() {
 	      return attrs.rootEl || "ng-form";
@@ -1718,6 +1720,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	      });
 	      return arrayAttrs.join(" ");
+	    }
+
+	    function getFieldAttributes() {
+	      if (attrs.fieldAttributes) {
+	        return attrs.fieldAttributes;
+	      }
+	      if (formlyConfig.extras.field && formlyConfig.extras.field.attributes) {
+	        return formlyConfig.extras.field.attributes;
+	      }
+	      return "";
+	    }
+
+	    function getFieldOneTimeBinding(attributeName) {
+	      var isOneTimeBinding = false;
+	      if (localUseOneTimeBindings && localUseOneTimeBindings[attributeName] !== undefined) {
+	        isOneTimeBinding = localUseOneTimeBindings[attributeName];
+	      } else if (globalUseOneTimeBindings && globalUseOneTimeBindings[attributeName] !== undefined) {
+	        isOneTimeBinding = globalUseOneTimeBindings[attributeName];
+	      }
+	      return isOneTimeBinding ? "::" : "";
 	    }
 	  }
 
