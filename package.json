@@ -9,7 +9,7 @@
   "homepage": "http://formly-js.github.io/angular-formly/",
   "repository": {
     "type": "git",
-    "url": "git://github.com/formly-js/angular-formly.git"
+    "url": "git://github.com/synectic/angular-formly.git"
   },
   "main": "dist/formly.js",
   "licenses": [
