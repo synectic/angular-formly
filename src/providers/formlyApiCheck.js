@@ -139,6 +139,7 @@ let fieldOptionsApiShape = {
   runExpressions: apiCheck.func.optional,
   templateManipulators: templateManipulators.optional,
   resetModel: apiCheck.func.optional,
+  initField: apiCheck.func.optional,
   updateInitialValue: apiCheck.func.optional,
   initialValue: apiCheck.any.optional,
   defaultValue: apiCheck.any.optional
@@ -151,6 +152,7 @@ let formlyFieldOptions = apiCheck.shape(fieldOptionsApiShape).strict;
 const formOptionsApi = apiCheck.shape({
   formState: apiCheck.object.optional,
   resetModel: apiCheck.func.optional,
+  initFields: apiCheck.func.optional,
   updateInitialValue: apiCheck.func.optional,
   removeChromeAutoComplete: apiCheck.bool.optional,
   templateManipulators: templateManipulators.optional,

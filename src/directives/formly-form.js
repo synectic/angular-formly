@@ -149,6 +149,7 @@ function formlyForm(formlyUsability, $parse, formlyConfig) {
       angular.forEach($scope.fields, function runFieldExpressionProperties(field, index) {
         /*jshint -W030 */
         const model = field.model || $scope.model;
+        field.initField && field.initField();
         field.runExpressions && field.runExpressions(model);
         if (field.hideExpression) { // can't use hide with expressionProperties reliably
           const val = model[field.key];
@@ -166,9 +167,19 @@ function formlyForm(formlyUsability, $parse, formlyConfig) {
 
       angular.extend($scope.options, {
         updateInitialValue,
-        resetModel
+        resetModel,
+        initFields
       });
+    }
 
+    function initFields() {
+      angular.forEach($scope.fields, function (field) {
+        if (isFieldGroup(field)) {
+          field.options.initFields();
+        } else {
+          field.initField();
+        }
+      });
     }
 
     function updateInitialValue() {

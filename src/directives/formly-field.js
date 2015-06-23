@@ -32,7 +32,7 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
 
   // @ngInject
   function FormlyFieldController($scope, $timeout, $parse, $controller) {
-    /* jshint maxstatements:31 */
+    /* jshint maxstatements:32 */
     if ($scope.options.fieldGroup) {
       setupFieldGroup();
       return;
@@ -131,6 +131,14 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
       }
     }
 
+    function initField() {
+      // must run on next tick to make sure that the current value is correct.
+      $timeout(function () {
+        setDefaultValue();
+        setInitialValue();
+      });
+    }
+
     function extendOptionsWithDefaults(options, index) {
       const key = options.key || index || 0;
       angular.extend(options, {
@@ -138,6 +146,7 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
         key,
         value: valueGetterSetter,
         runExpressions,
+        initField,
         resetModel,
         updateInitialValue
       });
@@ -167,7 +176,7 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
       if(!isMultiNgModel){
         formControl.$setViewValue($scope.model[$scope.options.key]);
       }
-      
+
       formControl.$render();
       formControl.$setUntouched();
       formControl.$setPristine();
