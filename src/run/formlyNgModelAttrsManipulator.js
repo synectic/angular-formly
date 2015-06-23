@@ -35,7 +35,9 @@ function addFormlyNgModelAttrsManipulator(formlyConfig) {
 
 
     function addValidation() {
-      if (angular.isDefined(options.validators) || angular.isDefined(options.validation.messages)) {
+      var isValidationMessagesNotEmpty = angular.isDefined(options.validation.messages) &&
+                                          !angular.equals(options.validation.messages, {});
+      if (angular.isDefined(options.validators) || isValidationMessagesNotEmpty) {
         addIfNotPresent(modelNodes, 'formly-custom-validation', '');
       }
     }
