@@ -1,3 +1,4 @@
+import angular from 'angular-fix';
 import apiCheckFactory from 'api-check';
 
 let apiCheck = apiCheckFactory({
@@ -89,6 +90,7 @@ let fieldOptionsApiShape = {
   model: modelChecker.optional,
   className: apiCheck.string.optional,
   id: apiCheck.string.optional,
+  name: apiCheck.string.optional,
   expressionProperties: expressionProperties.optional,
   data: apiCheck.object.optional,
   templateOptions: apiCheck.object.optional,
@@ -134,7 +136,7 @@ let fieldOptionsApiShape = {
     messages: apiCheck.objectOf(formlyExpression).optional,
     errorExistsAndShouldBeVisible: apiCheck.bool.optional
   }).optional,
-  formControl: apiCheck.object.optional,
+  formControl: apiCheck.typeOrArrayOf(apiCheck.object).optional,
   value: apiCheck.func.optional,
   runExpressions: apiCheck.func.optional,
   templateManipulators: templateManipulators.optional,
@@ -156,7 +158,9 @@ const formOptionsApi = apiCheck.shape({
   updateInitialValue: apiCheck.func.optional,
   removeChromeAutoComplete: apiCheck.bool.optional,
   templateManipulators: templateManipulators.optional,
-  wrapper: specifyWrapperType.optional
+  wrapper: specifyWrapperType.optional,
+  fieldTransform: apiCheck.func.optional,
+  data: apiCheck.object.optional
 }).strict;
 
 
@@ -169,6 +173,7 @@ const fieldGroup = apiCheck.shape({
   options: formOptionsApi.optional,
   hide: apiCheck.bool.optional,
   hideExpression: formlyExpression.optional,
+  data: apiCheck.object.optional,
   model: modelChecker.optional,
   form: apiCheck.object.optional,
   elementAttributes: apiCheck.objectOf(apiCheck.string).optional

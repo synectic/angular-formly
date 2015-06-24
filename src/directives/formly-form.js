@@ -8,7 +8,7 @@ export default formlyForm;
  * @restrict E
  */
 // @ngInject
-function formlyForm(formlyUsability, $parse, formlyConfig) {
+function formlyForm(formlyUsability, formlyWarn, $parse, formlyConfig, $interpolate) {
   var currentFormId = 1;
   return {
     restrict: 'E',
@@ -26,7 +26,6 @@ function formlyForm(formlyUsability, $parse, formlyConfig) {
   };
 
   function formlyFormGetTemplate(el, attrs) {
-    /* jshint -W033 */ // this because jshint is broken I guess...
     const rootEl = getRootEl();
     const fieldRootEl = getFieldRootEl();
     const formId = `formly_${currentFormId++}`;
@@ -88,7 +87,7 @@ function formlyForm(formlyUsability, $parse, formlyConfig) {
           throw formlyUsability.getFormlyError('bind-name attribute on formly-form not allowed in < angular 1.3');
         }
         // we can do a one-time binding here because we know we're in 1.3.x territory
-        formName = `{{::'formly_' + ${bindName}}}`;
+        formName = `${$interpolate.startSymbol()}::'formly_' + ${bindName}${$interpolate.endSymbol()}`;
       }
       return formName;
     }
@@ -120,8 +119,7 @@ function formlyForm(formlyUsability, $parse, formlyConfig) {
       if (localUseOneTimeBindings &&
           localUseOneTimeBindings[attributeName] !== undefined) {
         isOneTimeBinding = localUseOneTimeBindings[attributeName];
-      }
-      else if (globalUseOneTimeBindings &&
+      } else if (globalUseOneTimeBindings &&
                globalUseOneTimeBindings[attributeName] !== undefined) {
         isOneTimeBinding = globalUseOneTimeBindings[attributeName];
       }
@@ -133,11 +131,7 @@ function formlyForm(formlyUsability, $parse, formlyConfig) {
   function FormlyFormController($scope, formlyApiCheck, formlyUtil) {
     setupOptions();
     $scope.model = $scope.model || {};
-    $scope.fields = $scope.fields || [];
-
-    angular.forEach($scope.fields, initModel); // initializes the model property if set to 'formState'
-    angular.forEach($scope.fields, attachKey); // attaches a key based on the index if a key isn't specified
-    angular.forEach($scope.fields, setupWatchers); // setup watchers for all fields
+    setupFields();
 
     // watch the model and evaluate watch expressions that depend on it.
     $scope.$watch('model', onModelOrFormStateChange, true);
@@ -157,6 +151,23 @@ function formlyForm(formlyUsability, $parse, formlyConfig) {
         }
       });
     }
+
+    function setupFields() {
+      $scope.fields = $scope.fields || [];
+      const fieldTransform = $scope.options.fieldTransform || formlyConfig.extras.fieldTransform;
+
+      if (fieldTransform) {
+        $scope.fields = fieldTransform($scope.fields, $scope.model, $scope.options, $scope.form);
+        if (!$scope.fields) {
+          throw formlyUsability.getFormlyError('fieldTransform must return an array of fields');
+        }
+      }
+
+      angular.forEach($scope.fields, initModel); // initializes the model property if set to 'formState'
+      angular.forEach($scope.fields, attachKey); // attaches a key based on the index if a key isn't specified
+      angular.forEach($scope.fields, setupWatchers); // setup watchers for all fields
+    }
+
 
     function setupOptions() {
       formlyApiCheck.throw(
@@ -328,11 +339,14 @@ function formlyForm(formlyUsability, $parse, formlyConfig) {
           setter(scope.$parent, scope[formId]);
         }
       }
-      if (!scope.theFormlyForm) {
-        console.warn(formlyUsability.getErrorMessage(
+      if (!scope.theFormlyForm && !formlyConfig.disableWarnings) {
+        /* eslint no-console:0 */
+        formlyWarn(
           'formly-form-has-no-formcontroller',
-          'A formly-form does not have a `form` property. Many functions of the form (like validation) may not work'
-        ));
+          'Your formly-form does not have a `form` property. Many functions of the form (like validation) may not work',
+          el,
+          scope
+        );
       }
     }
 
@@ -348,7 +362,7 @@ function formlyForm(formlyUsability, $parse, formlyConfig) {
       if ((global && !offInstance) || onInstance) {
         const input = document.createElement('input');
         input.setAttribute('autocomplete', 'address-level4');
-        input.setAttribute('hidden', true);
+        input.setAttribute('hidden', 'true');
         el[0].appendChild(input);
       }
 

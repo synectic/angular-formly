@@ -1,4 +1,8 @@
-import sinon from 'sinon';
+/* eslint no-shadow:0 */
+/* eslint max-statements:50 */
+/* eslint max-len:0 */
+/* eslint no-console:0 */
+import angular from 'angular-fix';
 import apiCheck from 'api-check';
 import {expect} from 'chai';
 import testUtils from '../test.utils.js';
@@ -729,7 +733,7 @@ describe('formly-field', function() {
       }
 
     });
-    
+
     describe(`multiple ng-models`, () => {
       it(`should be an array`, () => {
         scope.fields = [{
@@ -739,7 +743,7 @@ describe('formly-field', function() {
         compileAndDigest();
         expect(isolateScope.fc).to.be.instanceof(Array);
       });
-    }); 
+    });
   });
 
   describe(`link`, () => {
@@ -778,6 +782,22 @@ describe('formly-field', function() {
       ];
       compileAndDigest();
       expect(el[0].querySelector('ng-form[foo=bar][baz=eggs]')).to.exist;
+    });
+  });
+
+  describe(`initField`, () => {
+    it(`should initialize fields`, () => {
+      const field = getNewField({key: 'foo', defaultValue: 'bar'});
+      scope.fields = [field];
+      compileAndDigest();
+
+
+      // reset state
+      field.initField();
+      $timeout.flush(); // <-- runExpressions happens inside a $timeout
+
+      // expect reset
+      expect(field.formControl.$modelValue).to.eq('bar');
     });
   });
 
@@ -856,7 +876,7 @@ describe('formly-field', function() {
     });
   });
 
-  describe(`with a div ng-model`,() => {
+  describe(`with a div ng-model`, () => {
     it(`should have a form-controller`, () => {
       const template = `<div ng-model="model[options.key]"> </div>`;
       scope.fields = [getNewField({template: template})];
@@ -866,7 +886,7 @@ describe('formly-field', function() {
     });
   });
 
-  describe(`with a div data-ng-model`,() => {
+  describe(`with a div data-ng-model`, () => {
     it(`should have a form-controller`, () => {
       const template = `<div data-ng-model="model[options.key]"> </div>`;
       scope.fields = [getNewField({template: template})];
@@ -995,7 +1015,29 @@ describe('formly-field', function() {
 
   });
 
-  describe(`fieldGroup with specified "key" property`, () => {
+  describe(`fieldGroup`, () => {
+    it(`should share the form with a fieldGroup`, () => {
+      scope.model = {child: {foo: 'bar'}};
+      scope.fields = [
+        {
+          model: 'model.child',
+          fieldGroup: [
+            getNewField({key: 'foo'})
+          ]
+        }
+      ];
+
+      compileAndDigest();
+      const fieldGroupNode = node.querySelector('.formly-field-group');
+      expect(fieldGroupNode).to.exist;
+
+      const fieldGroup = getIsolateScope(0);
+
+      expect(fieldGroup.model).to.eq(scope.model.child);
+
+      expect(fieldGroup.options.form).to.eq(fieldGroup.form);
+    });
+
     it(`should allow you to specify a key which will be used for the model of the field-group`, () => {
       scope.fields = [
         {
@@ -1163,6 +1205,20 @@ describe('formly-field', function() {
     });
   });
 
+  describe(`other things`, () => {
+    it(`should warn if you specify 'hide' in expressionProperties`, inject(($log) => {
+      scope.fields = [getNewField({expressionProperties: {hide: 'foo'}})];
+      compileAndDigest();
+      const log = $log.warn.logs[0];
+      expect($log.warn.logs).to.have.length(1);
+      expect(log[0]).to.equal('Formly Warning:');
+      expect(log[1]).to.equal(
+        'You have specified `hide` in `expressionProperties`. Use `hideExpression` instead'
+      );
+      expect(log[2]).to.equal(field);
+    }));
+  });
+
   function compileAndDigest(template = basicForm, context = scope) {
     el = $compile(template)(context);
     context.$digest();
@@ -1192,16 +1248,23 @@ describe('formly-field', function() {
       calledArgs = arguments;
     };
     test();
+    if (!calledArgs) {
+      throw new Error('Expected warning, but there was none');
+    }
     expect(calledArgs[0]).to.match(match);
     console.warn = originalWarn;
   }
 
   function shouldNotWarn(test) {
     var originalWarn = console.warn;
-    var callCount = 0;
-    console.warn = () => callCount++;
+    var calledArgs;
+    console.warn = function() {
+      calledArgs = arguments;
+    };
     test();
-    expect(callCount).to.equal(0);
+    if (calledArgs) {
+      throw new Error('Expected no warning, but there was one', calledArgs);
+    }
     console.warn = originalWarn;
   }
 });

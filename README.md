@@ -6,12 +6,14 @@ Status:
 [![bower version](https://img.shields.io/bower/v/angular-formly.svg?style=flat-square)](https://www.npmjs.org/package/angular-formly)
 [![npm version](https://img.shields.io/npm/v/angular-formly.svg?style=flat-square)](https://www.npmjs.org/package/angular-formly)
 [![npm downloads](https://img.shields.io/npm/dm/angular-formly.svg?style=flat-square)](http://npm-stat.com/charts.html?package=angular-formly&from=2015-01-01)
-[![Build Status](https://img.shields.io/travis/formly-js/angular-formly.svg?style=flat-square)](https://travis-ci.org/formly-js/angular-formly)
+[![Build Status](https://img.shields.io/codeship/c6ae7d40-f3c0-0132-0819-16cf317d1634.svg?style=flat-square)](https://codeship.com/projects/85475)
+[![Code Coverage](https://img.shields.io/codecov/c/github/formly-js/angular-formly.svg?style=flat-square)](https://codecov.io/github/formly-js/angular-formly)
 
 Links:
 [![Documentation](https://img.shields.io/badge/API-Docs-red.svg?style=flat-square)](http://docs.angular-formly.com)
 [![Examples](https://img.shields.io/badge/formly-examples-green.svg?style=flat-square)](http://angular-formly.com)
 [![mailing list](https://img.shields.io/badge/mailing-list-orange.svg?style=flat-square)](https://groups.io/org/groupsio/formly-js)
+[![egghead.io lessons](https://img.shields.io/badge/egghead-lessons-blue.svg?style=flat-square)](https://egghead.io/playlists/advanced-angular-forms-with-angular-formly)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/formly-js/angular-formly?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 angular-formly is an AngularJS module which has a directive to help customize and render JavaScript/JSON configured forms.
@@ -29,12 +31,11 @@ application's forms.
 
 From there, it's just JavaScript. Allowing for DRY, maintainable, reusable forms.
 
-## Learning
+## [Learning](http://learn.angular-formly.com)
 
 ### Egghead.io Lessons
 
-- [Introduction](https://egghead.io/lessons/angularjs-introduction-to-angular-formly)
-- [Bug me](/../../issues/219) for more...
+I'm an [egghead.io](https://egghead.io/) author and I have made a handful of lessons available there for free [here](https://egghead.io/playlists/advanced-angular-forms-with-angular-formly)
 
 ### NG-NL Talk
 
@@ -44,9 +45,17 @@ From there, it's just JavaScript. Allowing for DRY, maintainable, reusable forms
 
 [The website](http://formly-js.github.io/angular-formly/) is full of tons of examples.
 
+### More
+
+Find more resources at [learn.angular-formly.com](http://learn.angular-formly.com)
+
 ## Documentation
 
 Find all the documentation at [docs.angular-formly.com](http://docs.angular-formly.com).
+
+## Getting Help
+
+Please to file an issue unless you feel like you've found a bug or have a feature request. Instead, go to [help.angular-formly.com](http://help.angular-formly.com) and follow the instructions.
 
 ## Roadmap
 
@@ -60,14 +69,20 @@ Please see the [CONTRIBUTING Guidelines](CONTRIBUTING.md).
 
 You can bookmark these :-)
 
+- [http://help.angular-formly.com](http://help.angular-formly.com)
+- [http://question.angular-formly.com](http://question.angular-formly.com)
+- [http://issue.angular-formly.com](http://issue.angular-formly.com)
 - [http://new-example.angular-formly.com](http://new-example.angular-formly.com)
 - [http://egghead.angular-formly.com](http://egghead.angular-formly.com)
 - [http://changelog.angular-formly.com](http://changelog.angular-formly.com)
 - [http://chat.angular-formly.com](http://chat.angular-formly.com)
 - [http://mailing-list.angular-formly.com](http://mailing-list.angular-formly.com)
 - [http://learn.angular-formly.com](http://learn.angular-formly.com)
+- [http://questions.angular-formly.com](http://questions.angular-formly.com)
 
 ## Thanks
 
 A special thanks to [Nimbly](http://gonimbly.com) for creating angular-formly.
-Thanks to [Kent C. Dodds](https://github.com/kentcdodds) for his continued support on the project.
+This library is maintained (with love) by me, [Kent C. Dodds](https://twitter.com/kentcdodds).
+Thanks to all [contributors](https://github.com/formly-js/angular-formly/graphs/contributors)!
+

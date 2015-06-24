@@ -32,7 +32,7 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
 
   // @ngInject
   function FormlyFieldController($scope, $timeout, $parse, $controller) {
-    /* jshint maxstatements:32 */
+    /* eslint max-statements:[2, 32] */
     if ($scope.options.fieldGroup) {
       setupFieldGroup();
       return;
@@ -46,7 +46,7 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
     // set field id to link labels and fields
 
     // initalization
-    setFieldId();
+    setFieldIdAndName();
     setDefaultValue();
     setInitialValue();
     runExpressions();
@@ -72,7 +72,7 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
 
     function valueGetterSetter(newVal) {
       if (!$scope.model || !$scope.options.key) {
-        return;
+        return undefined;
       }
       if (angular.isDefined(newVal)) {
         $scope.model[$scope.options.key] = newVal;
@@ -92,7 +92,7 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
       $scope.formOptions = $scope.formOptions || {};
     }
 
-    function setFieldId() {
+    function setFieldIdAndName() {
       if (angular.isFunction(formlyConfig.extras.getFieldId)) {
         $scope.id = formlyConfig.extras.getFieldId($scope.options, $scope.model, $scope);
       } else {
@@ -100,6 +100,8 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
         $scope.id = formlyUtil.getFieldId(formName, $scope.options, $scope.index);
       }
       $scope.options.id = $scope.id;
+      $scope.name = $scope.options.name || $scope.options.id;
+      $scope.options.name = $scope.name;
     }
 
     function setDefaultValue() {
@@ -232,11 +234,11 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
     var args = arguments;
     var thusly = this;
     var fieldCount = 0;
-    const manipulators = getManipulators(scope.options, scope.formOptions);
+    const fieldManipulators = getManipulators(scope.options, scope.formOptions);
     getFieldTemplate(scope.options)
-      .then(runManipulators(manipulators.preWrapper))
+      .then(runManipulators(fieldManipulators.preWrapper))
       .then(transcludeInWrappers(scope.options, scope.formOptions))
-      .then(runManipulators(manipulators.postWrapper))
+      .then(runManipulators(fieldManipulators.postWrapper))
       .then(setElementTemplate)
       .then(watchFormControl)
       .then(callLinkFunctions)
@@ -259,6 +261,7 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
         }).join(' ');
       }
       let modelValue = 'model';
+      scope.options.form = scope.form;
       if (scope.options.key) {
         modelValue = `model['${scope.options.key}']`;
       }
@@ -296,7 +299,6 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
     }
 
     function watchFormControl(templateString) {
-      let stopWatchingField = angular.noop;
       let stopWatchingShowError = angular.noop;
       if (scope.options.noFormControl) {
         return;
@@ -322,7 +324,7 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
       }
 
       function watchFieldExistence(name) {
-        stopWatchingField = scope.$watch(`form["${name}"]`, function formControlChange(formControl) {
+        scope.$watch(`form["${name}"]`, function formControlChange(formControl) {
           if (formControl) {
             if(fieldCount > 1){
               if(!scope.options.formControl){
@@ -371,8 +373,8 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
 
 
     function runManipulators(manipulators) {
-      return function runManipulatorsOnTemplate(template) {
-        var chain = $q.when(template);
+      return function runManipulatorsOnTemplate(templateToManipulate) {
+        var chain = $q.when(templateToManipulate);
         angular.forEach(manipulators, manipulator => {
           chain = chain.then(template => {
             return $q.when(manipulator(template, scope.options, scope)).then(newTemplate => {
@@ -404,20 +406,20 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
     return {preWrapper, postWrapper};
 
     function addManipulators(manipulators) {
-      /* jshint ignore:start */ // it doesn't understand this :-(
+      /* eslint-disable */ // it doesn't understand this :-(
       const {preWrapper:pre = [], postWrapper:post = []} = (manipulators || {});
       preWrapper = preWrapper.concat(pre);
       postWrapper = postWrapper.concat(post);
-      /* jshint ignore:end */
+      /* eslint-enable */
     }
   }
 
   function getFieldTemplate(options) {
-    function fromOptionsOrType(key, type){
+    function fromOptionsOrType(key, fieldType){
       if(angular.isDefined(options[key])){
         return options[key];
-      } else if(type && angular.isDefined(type[key])){
-        return type[key];
+      } else if(fieldType && angular.isDefined(fieldType[key])){
+        return fieldType[key];
       }
     }
 
@@ -468,10 +470,10 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
         return $q.when(template);
       }
 
-      wrapper.forEach((wrapper) => {
-        formlyUsability.checkWrapper(wrapper, options);
-        wrapper.validateOptions && wrapper.validateOptions(options);
-        runApiCheck(wrapper, options);
+      wrapper.forEach((aWrapper) => {
+        formlyUsability.checkWrapper(aWrapper, options);
+        aWrapper.validateOptions && aWrapper.validateOptions(options);
+        runApiCheck(aWrapper, options);
       });
       let promises = wrapper.map(w => getTemplate(w.template || w.templateUrl, !w.template));
       return $q.all(promises).then(wrappersTemplates => {
@@ -493,7 +495,7 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
     superWrapper.append(wrapper);
     let transcludeEl = superWrapper.find('formly-transclude');
     if (!transcludeEl.length) {
-      //try it using our custom find function
+      // try it using our custom find function
       transcludeEl = formlyUtil.findByNodeName(superWrapper, 'formly-transclude');
     }
     transcludeEl.replaceWith(template);
@@ -501,7 +503,7 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
   }
 
   function getWrapperOption(options, formOptions) {
-    /* jshint maxcomplexity:6 */
+    /* eslint complexity:[6, 2] */
     let wrapper = options.wrapper;
     // explicit null means no wrapper
     if (wrapper === null) {
@@ -549,6 +551,13 @@ function formlyField($http, $q, $compile, $templateCache, $interpolate, formlyCo
         type.validateOptions(options);
       }
       runApiCheck(type, options);
+    }
+    if (options.expressionProperties && options.expressionProperties.hide) {
+      formlyWarn(
+        'dont-use-expressionproperties.hide-use-hideexpression-instead',
+        'You have specified `hide` in `expressionProperties`. Use `hideExpression` instead',
+        options
+      );
     }
   }
 

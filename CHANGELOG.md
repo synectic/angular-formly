@@ -1,3 +1,64 @@
+# 6.15.1
+
+## Bug Fixes
+
+- Adding `LICENSE` back to the repo directly rather than using a symbolic link because it doesn't quite work well that way...
+
+# 6.15.0
+
+## New Features
+
+- `fieldGroup` can now have a `data` object. It should always have had one...
+
+# 6.14.1
+
+## Bug Fixes
+
+- `api-check` didn't handle an array of `formControl`s on field options which was introduced in `6.12.0-beta.0`
+
+## Internal Changes
+
+- npm scripts which use environment variables now use `better-npm-run` by [@benoror](https://github.com/benoror) so it can run cross platform [#305](/../../issues/305)
+
+# 6.14.0
+
+## New Features
+
+- Added `fieldTransform` to the `formly-form` options as well as `formlyConfig.extras` to allow you to modify/convert the fields before angular-formly handles them or validates them. So you can now have your own custom field configuration and then simply use this function to modify them into something that angular-formly recognizes. Big thanks to [@stevebluck](https://github.com/stevebluck) for this one! (His first open source contribution!) [#343](/../../issues/343)
+- Added `data` property to `formly-form` options.
+
+# 6.13.2
+
+## Enhancements
+
+- Adding warning when you use `expressionProperties.hide` indicating you should use `hideExpression` instead.
+- Fixing warning in `formly-form` to use `formlyWarn` instead so it is properly disabled.
+
+# 6.13.1
+
+## Bug Fixes
+
+- Fixing issue where `fieldGroup` was not sharing it's parent's form. Thanks [@benoror](https://github.com/benoror) [#347](/../../issues/347)
+
+# 6.13.0
+
+## Bug Fixes
+
+- Adding the ability to specify a `name` property on a field [#341](/../../issues/341)
+
+# 6.12.0
+
+## Other Improvements
+
+- Fixing some issues with eslint
+- Officially releasing 6.12.0
+
+# 6.12.0-beta.1
+
+## Bug Fixes
+
+- No longer hard coding `{{` and `}}` and instead using the `$interpolateProvider` [#331](/../../issues/331)
+
 # 6.12.0-beta.0
 
 ## New Features

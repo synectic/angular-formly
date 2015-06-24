@@ -3,7 +3,7 @@ import angular from 'angular-fix';
 export default addFormlyNgModelAttrsManipulator;
 
 // @ngInject
-function addFormlyNgModelAttrsManipulator(formlyConfig) {
+function addFormlyNgModelAttrsManipulator(formlyConfig, $interpolate) {
   if (formlyConfig.extras.disableNgModelAttrsManipulator) {
     return;
   }
@@ -24,7 +24,7 @@ function addFormlyNgModelAttrsManipulator(formlyConfig) {
     }
 
     addIfNotPresent(modelNodes, 'id', scope.id);
-    addIfNotPresent(modelNodes, 'name', scope.id);
+    addIfNotPresent(modelNodes, 'name', scope.name || scope.id);
 
     addValidation();
     addModelOptions();
@@ -68,7 +68,7 @@ function addFormlyNgModelAttrsManipulator(formlyConfig) {
 
       // Feel free to make this more simple :-)
       angular.forEach(ngModelAttributes, (val, name) => {
-        /* jshint maxcomplexity:14 */
+        /* eslint complexity:[2, 14] */
         let attrVal;
         let attrName;
         const ref = `options.templateOptions['${name}']`;
@@ -97,7 +97,7 @@ function addFormlyNgModelAttrsManipulator(formlyConfig) {
           attrVal = ref;
         } else if ((val.attribute || val.boolean) && inEp) {
           attrName = val.attribute || val.boolean;
-          attrVal = `{{${ref}}}`;
+          attrVal = `${$interpolate.startSymbol()}${ref}${$interpolate.endSymbol()}`;
         } else if (val.attribute && inTo) {
           attrName = val.attribute;
           attrVal = toVal;
@@ -106,7 +106,7 @@ function addFormlyNgModelAttrsManipulator(formlyConfig) {
             attrName = val.boolean;
             attrVal = true;
           } else {
-            // jshint -W035
+            /* eslint no-empty:0 */
             // empty to illustrate that a boolean will not be added via val.bound
             // if you want it added via val.bound, then put it in expressionProperties
           }
